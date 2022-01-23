@@ -93,6 +93,15 @@ bool ends_with(SSlice slice, SSlice end) {
   return true;
 }
 
+bool sslice_eq(SSlice a, SSlice b) {
+  if (a.len != b.len) return false;
+
+  for (int i = 0; i < a.len; i++) {
+    if (a.start[i] != b.start[i]) return false;
+  }
+  return true;
+}
+
 typedef enum {
   FT_UNKNOWN = -1,
   FT_TXT = 0,
@@ -243,14 +252,23 @@ int ftw_process_path(const char *fpath, const struct stat *sb, int typeflag) {
 }
 
 void usage() {
-  fprintf(stderr, "Finds TODOs in files recursively and outputs them in markdown-ready format\n");
   fprintf(stderr, "Usage: tdf [path]\n");
+  fprintf(stderr, "Finds TODOs in files recursively and outputs "
+                  "them in markdown-ready format\n");
   fprintf(stderr, "Options:\n");
-  fprintf(stderr, "  --help, -h     Show this help.");
+  fprintf(stderr, "  --help, -h     Show this help.\n");
   exit(1);
 }
 
 int main(int argc, char **argv) {
+  for (int i = 1; i < argc; i++) {
+    SSlice cur_arg = SSLICE_NEW(argv[i]);
+    if (sslice_eq(cur_arg, SSLICE_NEW("-h")) ||
+        sslice_eq(cur_arg, SSLICE_NEW("--help"))) {
+      usage();
+    }
+  }
+
   if (argc > 2) {
     usage();
   }
