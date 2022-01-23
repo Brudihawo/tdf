@@ -242,13 +242,24 @@ int ftw_process_path(const char *fpath, const struct stat *sb, int typeflag) {
   return 0;
 }
 
+void usage() {
+  fprintf(stderr, "Finds Todos in Files recursively and outputs them in markdown-ready format\n");
+  fprintf(stderr, "Usage: tdf [path]\n");
+  fprintf(stderr, "Options:\n");
+  fprintf(stderr, "  --help, -h     Show this help.");
+  exit(1);
+}
+
 int main(int argc, char **argv) {
-  if (argc != 2) {
-    fprintf(stderr, "Usage: tdf [path]\n");
-    exit(1);
+  if (argc > 2) {
+    usage();
   }
-  char *dirname = argv[1];
-  ftw(dirname, ftw_process_path, 10);
+
+  if (argc == 2) {
+    ftw(argv[1], ftw_process_path, 10);
+  } else if (argc == 1) {
+    ftw(".", ftw_process_path, 10);
+  }
 
   return 0;
 }
