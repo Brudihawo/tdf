@@ -94,10 +94,12 @@ bool ends_with(SSlice slice, SSlice end) {
 }
 
 bool sslice_eq(SSlice a, SSlice b) {
-  if (a.len != b.len) return false;
+  if (a.len != b.len)
+    return false;
 
   for (int i = 0; i < a.len; i++) {
-    if (a.start[i] != b.start[i]) return false;
+    if (a.start[i] != b.start[i])
+      return false;
   }
   return true;
 }
@@ -174,6 +176,19 @@ Ftype get_filetype(const char *fname) {
 char strbuf[STRBUF_CAP] = {0};
 Ftype file_type = FT_UNKNOWN;
 
+// default arguments
+bool file_loc = true;      // print file and location of todo
+bool markdown_list = true; // print list in markdown format
+
+typedef enum {
+  PLAIN = 0,
+  MARKDOWN_LIST_PLAIN,
+  FILE_LOC,
+  MARKDOWN_LIST_FULL,
+} OutputFormat;
+
+OutputFormat output_fmt;
+
 bool is_comment(SSlice line) {
   SSlice trimmed = trim_whitespace_left(line);
   switch (file_type) {
@@ -227,8 +242,22 @@ void process_file(const char *fname) {
           trimmed = trim_len(trimmed, comstrs[file_type].len);
           trimmed = trim_whitespace_left(trimmed);
           if (begins_with(trimmed, SSLICE_NEW("TODO: "))) {
-            fprintf(stdout, "- [ ] %s:%ld - %.*s\n", fname, line_no,
-                    SSLICE_FP(trimmed));
+            switch (output_fmt) {
+            case PLAIN:
+              fprintf(stdout, "%.*s\n", SSLICE_FP(trimmed));
+              break;
+            case FILE_LOC:
+              fprintf(stdout, "%s:%ld: %.*s\n", fname, line_no,
+                      SSLICE_FP(trimmed));
+              break;
+            case MARKDOWN_LIST_PLAIN:
+              fprintf(stdout, "- [ ] %.*s\n", SSLICE_FP(trimmed));
+              break;
+            case MARKDOWN_LIST_FULL:
+              fprintf(stdout, "- [ ] %s:%ld: %.*s\n", fname, line_no,
+                      SSLICE_FP(trimmed));
+              break;
+            }
           }
         }
       } else if (cur_line.len == -1) {
@@ -252,16 +281,20 @@ int ftw_process_path(const char *fpath, const struct stat *sb, int typeflag) {
 }
 
 void usage() {
-  fprintf(stderr, "Usage: tdf [path]\n");
-  fprintf(stderr, "Finds TODOs in files recursively and outputs "
+  fprintf(stderr, "Usage: tdf [options] [path]\n");
+  fprintf(stderr, "Finds TODOs in folder recursively and outputs "
                   "them in markdown-ready format\n");
+  fprintf(stderr, "If no path is provided, will traverse the current "
+                  "folder and subdirectories.\n");
   fprintf(stderr, "Options:\n");
-  fprintf(stderr, "  --help, -h     Show this help.\n");
+  fprintf(stderr, "  --help, -h     Show this help\n");
+  fprintf(stderr, "  --no-loc       Do not print file and location\n");
+  fprintf(stderr, "  --plain        Omit markdown list formatting\n");
   exit(1);
 }
 
 int main(int argc, char **argv) {
-  for (int i = 1; i < argc; i++) {
+  for (int i = 1; i < argc; i++) { // process optional arguments
     SSlice cur_arg = SSLICE_NEW(argv[i]);
     if (sslice_eq(cur_arg, SSLICE_NEW("-h")) ||
         sslice_eq(cur_arg, SSLICE_NEW("--help"))) {
@@ -269,13 +302,44 @@ int main(int argc, char **argv) {
     }
   }
 
-  if (argc > 2) {
+  char* file_path;
+  size_t optional_args_count = 0;
+  for (int i = 1; i < argc; i++) { // process optional arguments
+    SSlice cur_arg = SSLICE_NEW(argv[i]);
+    if (sslice_eq(cur_arg, SSLICE_NEW("--plain"))) {
+      optional_args_count++;
+      markdown_list = false;
+    } else if (sslice_eq(cur_arg, SSLICE_NEW("--no-loc"))) {
+      optional_args_count++;
+      file_loc = false;
+    } else {
+      file_path = argv[i];
+      if (i != argc - 1) {
+        fprintf(stderr, "Invalid arguments\n");
+        usage();
+      }
+      break;
+    }
+  }
+
+  // set output format
+  if (markdown_list && file_loc) {
+    output_fmt = MARKDOWN_LIST_FULL;
+  } else if (markdown_list && !file_loc) {
+    output_fmt = MARKDOWN_LIST_PLAIN;
+  } else if (!markdown_list && file_loc) {
+    output_fmt = FILE_LOC;
+  } else {
+    output_fmt = PLAIN;
+  }
+
+  if (argc > optional_args_count + 2) {
     usage();
   }
 
-  if (argc == 2) {
-    ftw(argv[1], ftw_process_path, 10);
-  } else if (argc == 1) {
+  if (argc == optional_args_count + 2) {
+    ftw(file_path, ftw_process_path, 10);
+  } else if (argc == optional_args_count + 1) {
     ftw(".", ftw_process_path, 10);
   }
 
