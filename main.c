@@ -243,7 +243,7 @@ int ftw_process_path(const char *fpath, const struct stat *sb, int typeflag) {
 }
 
 void usage() {
-  fprintf(stderr, "Finds Todos in Files recursively and outputs them in markdown-ready format\n");
+  fprintf(stderr, "Finds TODOs in files recursively and outputs them in markdown-ready format\n");
   fprintf(stderr, "Usage: tdf [path]\n");
   fprintf(stderr, "Options:\n");
   fprintf(stderr, "  --help, -h     Show this help.");
