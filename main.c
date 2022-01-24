@@ -13,8 +13,10 @@ typedef struct {
 
 #define SSLICE_AT(sslice, idx) sslice.start[idx]
 #define SSLICE_FP(sslice) sslice.len, sslice.start
-#define SSLICE_NEW(content) (SSlice) { .start = content, .len = strlen(content) }
-#define SSLICE_NWL(content, size) { .start = content, .len = size }
+#define SSLICE_NEW(content)                                                    \
+  (SSlice) { .start = content, .len = strlen(content) }
+#define SSLICE_NWL(content, size)                                              \
+  { .start = content, .len = size }
 
 SSlice trim_len(SSlice to_trim, int amount) {
   int trim_loc, trimmed_len;
@@ -202,28 +204,48 @@ bool is_comment(SSlice line) {
   return begins_with(trimmed, comstrs[file_type]);
 }
 
-void process_file(const char *fname) {
+typedef struct {
+  FILE* file;
+  size_t size;
+} FPackage;
+
+FPackage open_safe(const char* fname) {
   FILE *f = fopen(fname, "r");
   if (f == NULL) {
     fprintf(stderr, "Could not open file %s: %s\n", fname, strerror(errno));
     exit(1);
   }
-  // TODO: Does getting file size using fseek need error handling?
-  fseek(f, 0, SEEK_END);
+  if (fseek(f, 0, SEEK_END) < 0) {
+    fprintf(stderr, "Error getting file size for %s: %s\n", fname,
+            strerror(errno));
+    exit(1);
+  }
   size_t f_size = ftell(f);
-  fseek(f, 0, SEEK_SET);
+  if (fseek(f, 0, SEEK_SET) < 0) {
+    fprintf(stderr, "Error setting position in file %s: %s\n", fname,
+            strerror(errno));
+    exit(1);
+  }
+  return (FPackage) {
+    .file = f,
+    .size = f_size,
+  };
+}
 
+void process_file(const char *fname) {
+
+  FPackage f = open_safe(fname);
   file_type = get_filetype(fname);
 
   size_t cur_pos = 0;
   size_t line_no = 0;
-  while (cur_pos < f_size) {
+  while (cur_pos < f.size) {
     // reset file and file buffer
-    fseek(f, cur_pos, SEEK_SET);
+    fseek(f.file, cur_pos, SEEK_SET);
     memset(&strbuf, 0, STRBUF_CAP);
 
     // read file chunk into string buffer
-    fread(&strbuf, STRBUF_CAP, 1, f);
+    fread(&strbuf, STRBUF_CAP, 1, f.file);
     SSlice cur_chunk = (SSlice){
         .start = strbuf,
         .len = STRBUF_CAP,
@@ -258,7 +280,7 @@ void process_file(const char *fname) {
           }
         }
       } else if (cur_line.len == -1) {
-        cur_pos = f_size;
+        cur_pos = f.size;
         break;
       } else {
         break;
@@ -267,7 +289,7 @@ void process_file(const char *fname) {
     }
   }
 
-  fclose(f);
+  fclose(f.file);
 }
 
 int ftw_process_path(const char *fpath, const struct stat *sb, int typeflag) {

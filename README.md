@@ -12,7 +12,6 @@ Finds todos recursively in a directory
 
 ## In-File TODOs
 - [ ] ./main.c:147: TODO: handle file types better
-- [ ] ./main.c:211: TODO: Does getting file size using fseek need error handling?
 
 ## Roadmap
 - [ ] Input Custom Comment String
