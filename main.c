@@ -13,10 +13,8 @@ typedef struct {
 
 #define SSLICE_AT(sslice, idx) sslice.start[idx]
 #define SSLICE_FP(sslice) sslice.len, sslice.start
-#define SSLICE_NEW(content)                                                    \
-  (SSlice) { .start = content, .len = strlen(content) }
-#define SSLICE_NWL(content, size)                                              \
-  { .start = content, .len = size }
+#define SSLICE_NEW(content) (SSlice) { .start = content, .len = strlen(content) }
+#define SSLICE_NWL(content, size) { .start = content, .len = size }
 
 SSlice trim_len(SSlice to_trim, int amount) {
   int trim_loc, trimmed_len;
@@ -210,8 +208,7 @@ void process_file(const char *fname) {
     fprintf(stderr, "Could not open file %s: %s\n", fname, strerror(errno));
     exit(1);
   }
-  // Get file size
-  // TODO: Does this need error handling?
+  // TODO: Does getting file size using fseek need error handling?
   fseek(f, 0, SEEK_END);
   size_t f_size = ftell(f);
   fseek(f, 0, SEEK_SET);
@@ -302,7 +299,7 @@ int main(int argc, char **argv) {
     }
   }
 
-  char* file_path;
+  char *file_path;
   size_t optional_args_count = 0;
   for (int i = 1; i < argc; i++) { // process optional arguments
     SSlice cur_arg = SSLICE_NEW(argv[i]);
