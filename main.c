@@ -255,12 +255,16 @@ void process_file(const char *fname) {
       line_no++;
       cur_pos += cur_line.len + 1;
       if (cur_line.len > 0) {
+        // TODO: support end of line comments as well
         if (is_comment(cur_line)) {
           // trim comment characters and 'TODO: '
           SSlice trimmed = trim_whitespace_left(cur_line);
           trimmed = trim_len(trimmed, comstrs[file_type].len);
           trimmed = trim_whitespace_left(trimmed);
-          if (begins_with(trimmed, SSLICE_NEW("TODO: "))) {
+          // TODO: Extract comment strings to a place where they can be easily modified / appended
+          if (begins_with(trimmed, SSLICE_NEW("TODO: ")) ||
+              begins_with(trimmed, SSLICE_NEW("FIXME: ")) ||
+              begins_with(trimmed, SSLICE_NEW("BUG: "))) {
             switch (output_fmt) {
             case PLAIN:
               fprintf(stdout, "%.*s\n", SSLICE_FP(trimmed));
