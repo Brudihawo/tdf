@@ -4,7 +4,6 @@
 #include "stdio.h"
 #include "stdlib.h"
 
-// TODO: Test sslice functions
 SSlice trim_len(SSlice to_trim, int amount) {
   if (amount > 0) {
     return (SSlice){&SSLICE_AT(to_trim, amount), to_trim.len - amount};
@@ -26,7 +25,6 @@ SSlice chop_delim(SSlice text, char delim) {
   };
 }
 
-// TODO: Check chop_delim and chop_delim_right
 SSlice chop_delim_right(SSlice text, char delim) {
   int i = text.len - 1;
   while ((i >= 0) && (SSLICE_AT(text, i) != delim)) {

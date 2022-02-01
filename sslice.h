@@ -16,6 +16,7 @@ typedef struct {
 #define SSLICE_NWL(content, size)                                              \
   { .start = content, .len = size }
 
+// TODO: Rename Functions
 SSlice trim_len(SSlice to_trim, int amount);
 SSlice chop_delim(SSlice text, char delim);
 SSlice chop_delim_right(SSlice text, char delim);
