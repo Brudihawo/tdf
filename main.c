@@ -6,103 +6,7 @@
 #include "stdlib.h"
 #include "string.h"
 
-typedef struct {
-  const char *start;
-  int len;
-} SSlice;
-
-#define SSLICE_AT(sslice, idx) sslice.start[idx]
-#define SSLICE_FP(sslice) sslice.len, sslice.start
-#define SSLICE_NEW(content)                                                    \
-  (SSlice) { .start = content, .len = strlen(content) }
-#define SSLICE_NWL(content, size)                                              \
-  { .start = content, .len = size }
-
-SSlice trim_len(SSlice to_trim, int amount) {
-  int trim_loc, trimmed_len;
-  if (amount > 0) {
-    trim_loc = amount;
-    trimmed_len = to_trim.len - amount;
-  } else {
-    trim_loc = to_trim.len - amount;
-    trimmed_len = amount;
-  }
-
-  return (SSlice){&SSLICE_AT(to_trim, trim_loc), trimmed_len};
-}
-
-SSlice chop_delim(SSlice text, char delim) {
-  int i = 0;
-  while ((i < text.len) && (SSLICE_AT(text, i) != delim)) {
-    i++;
-  }
-
-  return (SSlice){
-      .start = &SSLICE_AT(text, 0),
-      .len = i == text.len - 1 ? -1 : i,
-  };
-}
-
-SSlice chop_delim_right(SSlice text, char delim) {
-  int i = text.len - 1;
-  while ((i > 0) && (SSLICE_AT(text, i) != delim)) {
-    i--;
-  }
-  if (i == text.len) {
-    i = -1;
-  }
-  return (SSlice){
-      .start = &SSLICE_AT(text, i + 1),
-      .len = text.len - i + 1,
-  };
-}
-
-static inline SSlice chop_line(SSlice text) { return chop_delim(text, '\n'); }
-
-SSlice trim_whitespace_left(SSlice line) {
-  size_t cur_idx = 0;
-  while (SSLICE_AT(line, cur_idx) == ' ') {
-    cur_idx++;
-  }
-  return (SSlice){
-      .start = &SSLICE_AT(line, cur_idx),
-      .len = line.len - cur_idx,
-  };
-}
-
-bool begins_with(SSlice slice, SSlice begin) {
-  if (slice.len < begin.len)
-    return false;
-
-  for (int idx = 0; idx < begin.len; idx++) {
-    if (SSLICE_AT(slice, idx) != SSLICE_AT(begin, idx)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool ends_with(SSlice slice, SSlice end) {
-  if (slice.len < end.len)
-    return false;
-  for (int idx = 0; idx < end.len; idx++) {
-    if (SSLICE_AT(slice, slice.len - end.len + idx) != SSLICE_AT(end, idx)) {
-      return false;
-    }
-  }
-  return true;
-}
-
-bool sslice_eq(SSlice a, SSlice b) {
-  if (a.len != b.len)
-    return false;
-
-  for (int i = 0; i < a.len; i++) {
-    if (a.start[i] != b.start[i])
-      return false;
-  }
-  return true;
-}
+#include "sslice.h"
 
 typedef enum {
   FT_UNKNOWN = -1,
@@ -190,7 +94,7 @@ typedef enum {
 OutputFormat output_fmt;
 
 bool is_comment(SSlice line) {
-  SSlice trimmed = trim_whitespace_left(line);
+  SSlice trimmed = trim_whitespace(line);
   switch (file_type) {
   case FT_N:
     assert(false && "unreachable");
@@ -258,9 +162,9 @@ void process_file(const char *fname) {
         // TODO: support end of line comments as well
         if (is_comment(cur_line)) {
           // trim comment characters and 'TODO: '
-          SSlice trimmed = trim_whitespace_left(cur_line);
+          SSlice trimmed = trim_whitespace(cur_line);
           trimmed = trim_len(trimmed, comstrs[file_type].len);
-          trimmed = trim_whitespace_left(trimmed);
+          trimmed = trim_whitespace(trimmed);
           // TODO: Extract comment strings to a place where they can be easily modified / appended
           if (begins_with(trimmed, SSLICE_NEW("TODO: ")) ||
               begins_with(trimmed, SSLICE_NEW("FIXME: ")) ||
