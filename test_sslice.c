@@ -56,13 +56,15 @@ bool test_chop_delim_right(void) {
 
 bool test_chop_slice(void) {
   SSlice result = chop_slice(SSLICE_NEW("test test // comment"), SSLICE_NEW("//"));
-  bool ret = TEST_SSLICE_EQ(result, SSLICE_NEW("test test "), "Default");
+  SSlice exp = SSLICE_NEW("test test ");
+  bool ret = TEST_SSLICE_EQ(result, exp, "Default");
   return ret;
 }
 
 bool test_chop_slice_right(void) {
   SSlice result = chop_slice_right(SSLICE_NEW("test test // comment"), SSLICE_NEW("//"));
-  bool ret = TEST_SSLICE_EQ(result, SSLICE_NEW(" comment"), "Default");
+  SSlice exp = SSLICE_NEW(" comment");
+  bool ret = TEST_SSLICE_EQ(result, exp, "Default");
   return ret;
 }
 
@@ -74,7 +76,7 @@ bool test_trim_whitespace(void) {
 
 bool test_trim_whitespace_right(void) {
   SSlice result = trim_whitespace_right(SSLICE_NEW("   aaaaaa    "));
-  bool ret = TEST_SSLICE_EQ(result, SSLICE_NEW("   aaaaa"), "Default");
+  bool ret = TEST_SSLICE_EQ(result, SSLICE_NEW("   aaaaaa"), "Default");
   return ret;
 }
 

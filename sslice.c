@@ -76,7 +76,7 @@ SSlice chop_slice_right(SSlice text, SSlice delim) {
   if (j != delim.len - 1) j = 0;
   return (SSlice) {
     .start = &SSLICE_AT(text, text.len - i + delim.len - 1),
-    .len = i == text.len - 1 ? -1 : i - delim.len + 1,
+    .len = i == -1 ? -1 : i - delim.len + 1,
   };
 }
 
@@ -102,7 +102,7 @@ SSlice trim_whitespace_right(SSlice line) {
 
   return (SSlice){
       .start = &SSLICE_AT(line, 0),
-      .len = line.len - cur_idx,
+      .len = line.len - cur_idx + 1,
   };
 }
 
