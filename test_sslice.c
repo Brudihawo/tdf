@@ -55,17 +55,33 @@ bool test_chop_delim_right(void) {
 }
 
 bool test_chop_slice(void) {
-  SSlice result = chop_slice(SSLICE_NEW("test test // comment"), SSLICE_NEW("//"));
-  SSlice exp = SSLICE_NEW("test test ");
-  bool ret = TEST_SSLICE_EQ(result, exp, "Default");
-  return ret;
+  SSlice result1 = chop_slice(SSLICE_NEW("test test // comment"), SSLICE_NEW("//"));
+  SSlice exp1 = SSLICE_NEW("test test ");
+  bool ret1 = TEST_SSLICE_EQ(result1, exp1, "Default");
+
+  SSlice result2 = chop_slice(SSLICE_NEW("xx // x test test // comment2"), SSLICE_NEW("//"));
+  SSlice exp2 = SSLICE_NEW("xx ");
+  bool ret2 = TEST_SSLICE_EQ(result2, exp2, "Length 2");
+
+  SSlice result3 = chop_slice(SSLICE_NEW("x test test comment2//"), SSLICE_NEW("//"));
+  SSlice exp3 = SSLICE_NEW("x test test comment2");
+  bool ret3 = TEST_SSLICE_EQ(result3, exp3, "End of Line");
+  return ret1 && ret2 && ret3;
 }
 
 bool test_chop_slice_right(void) {
-  SSlice result = chop_slice_right(SSLICE_NEW("test test // comment"), SSLICE_NEW("//"));
-  SSlice exp = SSLICE_NEW(" comment");
-  bool ret = TEST_SSLICE_EQ(result, exp, "Default");
-  return ret;
+  SSlice result1 = chop_slice_right(SSLICE_NEW("x test test // comment"), SSLICE_NEW("//"));
+  SSlice exp1 = SSLICE_NEW(" comment");
+  bool ret1 = TEST_SSLICE_EQ(result1, exp1, "Length 1");
+
+  SSlice result2 = chop_slice_right(SSLICE_NEW("xx // x test test // comment2"), SSLICE_NEW("//"));
+  SSlice exp2 = SSLICE_NEW(" comment2");
+  bool ret2 = TEST_SSLICE_EQ(result2, exp2, "Length 2");
+
+  SSlice result3 = chop_slice_right(SSLICE_NEW("// x test test comment2"), SSLICE_NEW("//"));
+  SSlice exp3 = SSLICE_NEW(" x test test comment2");
+  bool ret3 = TEST_SSLICE_EQ(result3, exp3, "Begin of Line");
+  return ret1 && ret2 && ret3;
 }
 
 bool test_trim_whitespace(void) {
