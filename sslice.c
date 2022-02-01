@@ -52,10 +52,9 @@ SSlice chop_slice(SSlice text, SSlice delim) {
     }
   }
 
-  if (j != delim.len - 1) j = 0;
   return (SSlice) {
     .start = &SSLICE_AT(text, 0),
-    .len = i == text.len - 1 ? -1 : i - delim.len,
+    .len = j == 0 ? -1 : i - delim.len,
   };
 }
 
@@ -73,10 +72,9 @@ SSlice chop_slice_right(SSlice text, SSlice delim) {
     }
   }
 
-  if (j != delim.len - 1) j = 0;
   return (SSlice) {
-    .start = &SSLICE_AT(text, text.len - i + delim.len - 1),
-    .len = i == -1 ? -1 : i - delim.len + 1,
+    .start = &SSLICE_AT(text, i + delim.len + 1),
+    .len = j == 0 ? -1 : text.len - i - delim.len - 1,
   };
 }
 
