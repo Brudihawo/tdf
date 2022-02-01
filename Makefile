@@ -1,6 +1,6 @@
 CFLAGS:= -Wall -Werror --pedantic --std=c11
 
-.PHONY: tdf debug sslice sslice_test
+.PHONY: tdf debug sslice test_sslice
 
 .DEFAULT_GOAL = tdf
 

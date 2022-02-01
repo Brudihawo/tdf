@@ -1,3 +1,4 @@
 tdf
+test_sslice
 *.o
 compile_commands.json

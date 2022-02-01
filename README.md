@@ -11,7 +11,6 @@ Finds todos recursively in a directory
 
 ## In-File TODOs
 - [ ] ./main.c:149: TODO: handle file types better
-- [ ] ./main.c:258: TODO: support end of line comments as well
 - [ ] ./main.c:264: TODO: Extract comment strings to a place where they can be easily modified / appended
 
 ## Roadmap

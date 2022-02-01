@@ -94,7 +94,6 @@ typedef enum {
 OutputFormat output_fmt;
 
 bool is_comment(SSlice line) {
-  SSlice trimmed = trim_whitespace(line);
   switch (file_type) {
   case FT_N:
     assert(false && "unreachable");
@@ -105,7 +104,10 @@ bool is_comment(SSlice line) {
   default:
     break;
   }
-  return begins_with(trimmed, comstrs[file_type]);
+
+  SSlice chopped = chop_slice_right(line, comstrs[file_type]);
+  if (chopped.len == -1) return false;
+  return true;
 }
 
 typedef struct {
@@ -159,12 +161,11 @@ void process_file(const char *fname) {
       line_no++;
       cur_pos += cur_line.len + 1;
       if (cur_line.len > 0) {
-        // TODO: support end of line comments as well
         if (is_comment(cur_line)) {
           // trim comment characters and 'TODO: '
-          SSlice trimmed = trim_whitespace(cur_line);
-          trimmed = trim_len(trimmed, comstrs[file_type].len);
+          SSlice trimmed = chop_slice_right(cur_line, comstrs[file_type]);
           trimmed = trim_whitespace(trimmed);
+          trimmed = trim_whitespace_right(trimmed);
           // TODO: Extract comment strings to a place where they can be easily modified / appended
           if (begins_with(trimmed, SSLICE_NEW("TODO: ")) ||
               begins_with(trimmed, SSLICE_NEW("FIXME: ")) ||
