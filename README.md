@@ -10,8 +10,9 @@ Finds todos recursively in a directory
 ```
 
 ## In-File TODOs
-- [ ] ./main.c:149: TODO: handle file types better
-- [ ] ./main.c:264: TODO: Extract comment strings to a place where they can be easily modified / appended
+- [ ] ./sslice.h:19: TODO: Rename Functions
+- [ ] ./main.c:53: TODO: handle file types better
+- [ ] ./main.c:169: TODO: Extract comment strings to a place where they can be easily modified / appended
 
 ## Roadmap
 - [ ] Input Custom Comment String
