@@ -4,7 +4,7 @@ CFLAGS:= -Wall -Werror --pedantic --std=c11
 
 .DEFAULT_GOAL = tdf
 
-all: tdf sslice_test
+all: tdf test_sslice
 
 sslice:
 	$(CC) -c sslice.c $(CFLAGS)
@@ -17,3 +17,12 @@ test_sslice: sslice
 
 debug:
 	$(CC) -o tdf main.c $(CFLAGS) -g
+
+compiledb:
+	compiledb make -Bnwk all
+
+clean:
+	rm -vfr **/*.o
+	rm -vfr *.o
+	rm -vf ./tdf
+	rm -vf test_sslice
