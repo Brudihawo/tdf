@@ -39,7 +39,7 @@ typedef struct {
 } SL;
 
 /** printf format string for SL (use together with SL_FP)*/
-#define SL_FMT "%s.*"
+#define SL_FMT "%.*s"
 
 /** printf SL processing for SL (use together with SL_FMT)*/
 #define SL_FP(sslice) sslice.len, sslice.start
@@ -52,8 +52,8 @@ typedef struct {
   (SL) { .start = content, .len = strlen(content) }
 
 /** New SL from Content and size for constant definition */
-#define SL_NWL(content, size)                                              \
-  { .start = content, .len = size }
+#define SL_NWL(content)                                              \
+  { .start = content, .len = sizeof(content) - 1}
 
 /**
  * @brief Trim chars from an SL.

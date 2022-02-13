@@ -51,21 +51,28 @@ const char *ftype_to_cstr(Ftype ftype) {
   assert(false && "unreachable");
 }
 
+typedef struct {
+  SL comstr;
+  SL ending;
+} FileInfo;
+
+#define NEW_FT(comstr, ending)
+
 // TODO: handle file types better
 SL comstrs[FT_N] = {
-    [FT_TXT] = SL_NWL("", 0),    [FT_PYTHON] = SL_NWL("#", 1),
-    [FT_RUST] = SL_NWL("//", 2), [FT_CPP] = SL_NWL("//", 2),
-    [FT_HPP] = SL_NWL("//", 2),  [FT_C] = SL_NWL("//", 2),
-    [FT_H] = SL_NWL("//", 2),    [FT_LUA] = SL_NWL("--", 2),
-    [FT_TEX] = SL_NWL("%", 1),
+    [FT_TXT] = SL_NWL(""),    [FT_PYTHON] = SL_NWL("#"),
+    [FT_RUST] = SL_NWL("//"), [FT_CPP] = SL_NWL("//"),
+    [FT_HPP] = SL_NWL("//"),  [FT_C] = SL_NWL("//"),
+    [FT_H] = SL_NWL("//"),    [FT_LUA] = SL_NWL("--"),
+    [FT_TEX] = SL_NWL("%"),
 };
 
 SL endings[FT_N] = {
-    [FT_TXT] = SL_NWL(".txt", 4), [FT_PYTHON] = SL_NWL(".py", 3),
-    [FT_RUST] = SL_NWL(".rs", 3), [FT_CPP] = SL_NWL(".cpp", 4),
-    [FT_HPP] = SL_NWL(".hpp", 4), [FT_C] = SL_NWL(".c", 2),
-    [FT_H] = SL_NWL(".h", 2),     [FT_LUA] = SL_NWL(".lua", 4),
-    [FT_TEX] = SL_NWL(".tex", 4),
+    [FT_TXT] = SL_NWL(".txt"), [FT_PYTHON] = SL_NWL(".py"),
+    [FT_RUST] = SL_NWL(".rs"), [FT_CPP] = SL_NWL(".cpp"),
+    [FT_HPP] = SL_NWL(".hpp"), [FT_C] = SL_NWL(".c"),
+    [FT_H] = SL_NWL(".h"),     [FT_LUA] = SL_NWL(".lua"),
+    [FT_TEX] = SL_NWL(".tex"),
 };
 
 Ftype get_filetype(const char *fname) {
