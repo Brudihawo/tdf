@@ -6,7 +6,8 @@
 #include "stdlib.h"
 #include "string.h"
 
-#include "sslice.h"
+#define SL_IMPLEMENTATION
+#include "sl.h"
 
 typedef enum {
   FT_UNKNOWN = -1,
@@ -51,26 +52,26 @@ const char *ftype_to_cstr(Ftype ftype) {
 }
 
 // TODO: handle file types better
-SSlice comstrs[FT_N] = {
-    [FT_TXT] = SSLICE_NWL("", 0),    [FT_PYTHON] = SSLICE_NWL("#", 1),
-    [FT_RUST] = SSLICE_NWL("//", 2), [FT_CPP] = SSLICE_NWL("//", 2),
-    [FT_HPP] = SSLICE_NWL("//", 2),  [FT_C] = SSLICE_NWL("//", 2),
-    [FT_H] = SSLICE_NWL("//", 2),    [FT_LUA] = SSLICE_NWL("--", 2),
-    [FT_TEX] = SSLICE_NWL("%", 1),
+SL comstrs[FT_N] = {
+    [FT_TXT] = SL_NWL("", 0),    [FT_PYTHON] = SL_NWL("#", 1),
+    [FT_RUST] = SL_NWL("//", 2), [FT_CPP] = SL_NWL("//", 2),
+    [FT_HPP] = SL_NWL("//", 2),  [FT_C] = SL_NWL("//", 2),
+    [FT_H] = SL_NWL("//", 2),    [FT_LUA] = SL_NWL("--", 2),
+    [FT_TEX] = SL_NWL("%", 1),
 };
 
-SSlice endings[FT_N] = {
-    [FT_TXT] = SSLICE_NWL(".txt", 4), [FT_PYTHON] = SSLICE_NWL(".py", 3),
-    [FT_RUST] = SSLICE_NWL(".rs", 3), [FT_CPP] = SSLICE_NWL(".cpp", 4),
-    [FT_HPP] = SSLICE_NWL(".hpp", 4), [FT_C] = SSLICE_NWL(".c", 2),
-    [FT_H] = SSLICE_NWL(".h", 2),     [FT_LUA] = SSLICE_NWL(".lua", 4),
-    [FT_TEX] = SSLICE_NWL(".tex", 4),
+SL endings[FT_N] = {
+    [FT_TXT] = SL_NWL(".txt", 4), [FT_PYTHON] = SL_NWL(".py", 3),
+    [FT_RUST] = SL_NWL(".rs", 3), [FT_CPP] = SL_NWL(".cpp", 4),
+    [FT_HPP] = SL_NWL(".hpp", 4), [FT_C] = SL_NWL(".c", 2),
+    [FT_H] = SL_NWL(".h", 2),     [FT_LUA] = SL_NWL(".lua", 4),
+    [FT_TEX] = SL_NWL(".tex", 4),
 };
 
 Ftype get_filetype(const char *fname) {
-  SSlice fname_s = SSLICE_NEW(fname);
+  SL fname_s = SL_NEW(fname);
   for (int cur_ftype = FT_N - 1; cur_ftype >= FT_UNKNOWN; cur_ftype--) {
-    if (ends_with(fname_s, endings[cur_ftype]))
+    if (SL_ends_with(fname_s, endings[cur_ftype]))
       return cur_ftype;
   }
   return FT_UNKNOWN;
@@ -93,7 +94,7 @@ typedef enum {
 
 OutputFormat output_fmt;
 
-bool is_comment(SSlice line) {
+bool is_comment(SL line) {
   switch (file_type) {
   case FT_N:
     assert(false && "unreachable");
@@ -105,7 +106,7 @@ bool is_comment(SSlice line) {
     break;
   }
 
-  SSlice chopped = chop_slice_right(line, comstrs[file_type]);
+  SL chopped = SL_chop_slice_right(line, comstrs[file_type]);
   if (chopped.len == -1) return false;
   return true;
 }
@@ -152,38 +153,38 @@ void process_file(const char *fname) {
 
     // read file chunk into string buffer
     fread(&strbuf, STRBUF_CAP, 1, f.file);
-    SSlice cur_chunk = (SSlice){
+    SL cur_chunk = (SL){
         .start = strbuf,
         .len = STRBUF_CAP,
     };
     while (true) {
-      SSlice cur_line = chop_line(cur_chunk);
+      SL cur_line = SL_chop_line(cur_chunk);
       line_no++;
       cur_pos += cur_line.len + 1;
       if (cur_line.len > 0) {
         if (is_comment(cur_line)) {
           // trim comment characters and 'TODO: '
-          SSlice trimmed = chop_slice_right(cur_line, comstrs[file_type]);
-          trimmed = trim_whitespace(trimmed);
-          trimmed = trim_whitespace_right(trimmed);
+          SL trimmed = SL_chop_slice_right(cur_line, comstrs[file_type]);
+          trimmed = SL_trim_whitespace(trimmed);
+          trimmed = SL_trim_whitespace_right(trimmed);
           // TODO: Extract comment strings to a place where they can be easily modified / appended
-          if (begins_with(trimmed, SSLICE_NEW("TODO: ")) ||
-              begins_with(trimmed, SSLICE_NEW("FIXME: ")) ||
-              begins_with(trimmed, SSLICE_NEW("BUG: "))) {
+          if (SL_begins_with(trimmed, SL_NEW("TODO: ")) ||
+              SL_begins_with(trimmed, SL_NEW("FIXME: ")) ||
+              SL_begins_with(trimmed, SL_NEW("BUG: "))) {
             switch (output_fmt) {
             case PLAIN:
-              fprintf(stdout, "%.*s\n", SSLICE_FP(trimmed));
+              fprintf(stdout, "%.*s\n", SL_FP(trimmed));
               break;
             case FILE_LOC:
               fprintf(stdout, "%s:%ld: %.*s\n", fname, line_no,
-                      SSLICE_FP(trimmed));
+                      SL_FP(trimmed));
               break;
             case MARKDOWN_LIST_PLAIN:
-              fprintf(stdout, "- [ ] %.*s\n", SSLICE_FP(trimmed));
+              fprintf(stdout, "- [ ] %.*s\n", SL_FP(trimmed));
               break;
             case MARKDOWN_LIST_FULL:
               fprintf(stdout, "- [ ] %s:%ld: %.*s\n", fname, line_no,
-                      SSLICE_FP(trimmed));
+                      SL_FP(trimmed));
               break;
             }
           }
@@ -194,7 +195,7 @@ void process_file(const char *fname) {
       } else {
         break;
       }
-      cur_chunk = trim_len(cur_chunk, cur_line.len + 1);
+      cur_chunk = SL_trim_len(cur_chunk, cur_line.len + 1);
     }
   }
 
@@ -223,9 +224,9 @@ void usage() {
 
 int main(int argc, char **argv) {
   for (int i = 1; i < argc; i++) { // process optional arguments
-    SSlice cur_arg = SSLICE_NEW(argv[i]);
-    if (sslice_eq(cur_arg, SSLICE_NEW("-h")) ||
-        sslice_eq(cur_arg, SSLICE_NEW("--help"))) {
+    SL cur_arg = SL_NEW(argv[i]);
+    if (SL_eq(cur_arg, SL_NEW("-h")) ||
+        SL_eq(cur_arg, SL_NEW("--help"))) {
       usage();
     }
   }
@@ -233,11 +234,11 @@ int main(int argc, char **argv) {
   char *file_path;
   size_t optional_args_count = 0;
   for (int i = 1; i < argc; i++) { // process optional arguments
-    SSlice cur_arg = SSLICE_NEW(argv[i]);
-    if (sslice_eq(cur_arg, SSLICE_NEW("--plain"))) {
+    SL cur_arg = SL_NEW(argv[i]);
+    if (SL_eq(cur_arg, SL_NEW("--plain"))) {
       optional_args_count++;
       markdown_list = false;
-    } else if (sslice_eq(cur_arg, SSLICE_NEW("--no-loc"))) {
+    } else if (SL_eq(cur_arg, SL_NEW("--no-loc"))) {
       optional_args_count++;
       file_loc = false;
     } else {

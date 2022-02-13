@@ -4,16 +4,10 @@ CFLAGS:= -Wall -Werror --pedantic --std=c11
 
 .DEFAULT_GOAL = tdf
 
-all: tdf test_sslice
+all: tdf
 
-sslice:
-	$(CC) -c sslice.c $(CFLAGS)
-
-tdf: sslice
-	$(CC) -o tdf main.c sslice.o $(CFLAGS)
-
-test_sslice: sslice
-	$(CC) -o test_sslice test_sslice.c sslice.o $(CFLAGS)
+tdf:
+	$(CC) -o tdf main.c $(CFLAGS)
 
 debug:
 	$(CC) -o tdf main.c $(CFLAGS) -g
@@ -25,4 +19,3 @@ clean:
 	rm -vfr **/*.o
 	rm -vfr *.o
 	rm -vf ./tdf
-	rm -vf test_sslice

@@ -10,12 +10,12 @@ Finds todos recursively in a directory
 ```
 
 ## In-File TODOs
-- [ ] ./sslice.h:19: TODO: Rename Functions
-- [ ] ./main.c:53: TODO: handle file types better
-- [ ] ./main.c:169: TODO: Extract comment strings to a place where they can be easily modified / appended
+- [ ] ./main.c:54: TODO: handle file types better
+- [ ] ./main.c:170: TODO: Extract comment strings to a place where they can be easily modified / appended
 
 ## Roadmap
-- [ ] Input Custom Comment String
+- [ ] Input Custom Line Comment String
+- [ ] Input Custom TODO Marker (like TODO, FIXME etc.)
 - [ ] Input from stdin
 - [ ] Wrap file names in backticks via format option
 
