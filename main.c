@@ -114,16 +114,17 @@ bool is_comment(SL line) {
   }
 
   SL chopped = SL_chop_slice_right(line, comstrs[file_type]);
-  if (chopped.len == -1) return false;
+  if (chopped.len == -1)
+    return false;
   return true;
 }
 
 typedef struct {
-  FILE* file;
+  FILE *file;
   size_t size;
 } FPackage;
 
-FPackage open_safe(const char* fname) {
+FPackage open_safe(const char *fname) {
   FILE *f = fopen(fname, "r");
   if (f == NULL) {
     fprintf(stderr, "Could not open file %s: %s\n", fname, strerror(errno));
@@ -140,14 +141,13 @@ FPackage open_safe(const char* fname) {
             strerror(errno));
     exit(1);
   }
-  return (FPackage) {
-    .file = f,
-    .size = f_size,
+  return (FPackage){
+      .file = f,
+      .size = f_size,
   };
 }
 
 void process_file(const char *fname) {
-
   FPackage f = open_safe(fname);
   file_type = get_filetype(fname);
 
@@ -164,6 +164,7 @@ void process_file(const char *fname) {
         .start = strbuf,
         .len = STRBUF_CAP,
     };
+
     while (true) {
       SL cur_line = SL_chop_line(cur_chunk);
       line_no++;
@@ -174,7 +175,7 @@ void process_file(const char *fname) {
           SL trimmed = SL_chop_slice_right(cur_line, comstrs[file_type]);
           trimmed = SL_trim_whitespace(trimmed);
           trimmed = SL_trim_whitespace_right(trimmed);
-          // TODO: Extract comment strings to a place where they can be easily modified / appended
+          // TODO: Extract comment strings for better modification
           if (SL_begins_with(trimmed, SL_NEW("TODO: ")) ||
               SL_begins_with(trimmed, SL_NEW("FIXME: ")) ||
               SL_begins_with(trimmed, SL_NEW("BUG: "))) {
@@ -183,8 +184,7 @@ void process_file(const char *fname) {
               fprintf(stdout, "%.*s\n", SL_FP(trimmed));
               break;
             case FILE_LOC:
-              fprintf(stdout, "%s:%ld: %.*s\n", fname, line_no,
-                      SL_FP(trimmed));
+              fprintf(stdout, "%s:%ld: %.*s\n", fname, line_no, SL_FP(trimmed));
               break;
             case MARKDOWN_LIST_PLAIN:
               fprintf(stdout, "- [ ] %.*s\n", SL_FP(trimmed));
@@ -232,8 +232,7 @@ void usage() {
 int main(int argc, char **argv) {
   for (int i = 1; i < argc; i++) { // process optional arguments
     SL cur_arg = SL_NEW(argv[i]);
-    if (SL_eq(cur_arg, SL_NEW("-h")) ||
-        SL_eq(cur_arg, SL_NEW("--help"))) {
+    if (SL_eq(cur_arg, SL_NEW("-h")) || SL_eq(cur_arg, SL_NEW("--help"))) {
       usage();
     }
   }
