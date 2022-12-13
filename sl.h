@@ -30,6 +30,7 @@
 
 #include "stdbool.h"
 #include "string.h"
+#include <assert.h>
 
 /**
  * String Slice object
@@ -182,9 +183,20 @@ bool SL_eq(SL a, SL b);
  * @param a SL to search
  * @param c char to find in sl
  *
- * @return int specifying location of c in a. Returns -1 if c is not present.
+ * @return int: specifying location of c in a. Returns -1 if c is not present.
  */
 int SL_find(SL a, char c);
+
+/**
+ * Slice SL from left and right by index
+ *
+ * @param a SL to slice
+ * @param start inclusive start index
+ * @param end exclusive end index
+ *
+ * @return SL: a[start:end]
+ */
+SL SL_slice_left_right(SL a, int start, int end);
 
 #ifdef SL_IMPLEMENTATION // INCLUDE IMPLEMENTATIONS
 #include "stdio.h"
@@ -206,10 +218,7 @@ SL SL_chop_delim(SL text, char delim) {
   if (i == text.len)
     i = -1;
 
-  return (SL){
-      .start = &SL_AT(text, 0),
-      .len = i,
-  };
+  return (SL){};
 }
 
 SL SL_chop_delim_right(SL text, char delim) {
@@ -338,6 +347,12 @@ int SL_find(SL a, char c) {
     }
   }
   return -1;
+}
+
+SL SL_slice_left_right(SL a, int start, int end) {
+  assert(start < end);
+  assert(a.len >= end);
+  return (SL) { .start = &a.start[start], len = end - start; };
 }
 
 #endif // SL_IMPLEMENTATION
