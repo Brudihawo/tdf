@@ -215,10 +215,7 @@ SL SL_chop_delim(SL text, char delim) {
   while ((i < text.len) && (SL_AT(text, i) != delim)) {
     i++;
   }
-  if (i == text.len)
-    i = -1;
-
-  return (SL){};
+  return (SL){.start = &SL_AT(text, 0), .len = i};
 }
 
 SL SL_chop_delim_right(SL text, char delim) {
@@ -342,7 +339,7 @@ bool SL_eq(SL a, SL b) {
 
 int SL_find(SL a, char c) {
   for (int i = 0; i < a.len; ++i) {
-    if (SL_at(a, i) == c) {
+    if (SL_AT(a, i) == c) {
       return i;
     }
   }
@@ -352,7 +349,7 @@ int SL_find(SL a, char c) {
 SL SL_slice_left_right(SL a, int start, int end) {
   assert(start < end);
   assert(a.len >= end);
-  return (SL) { .start = &a.start[start], len = end - start; };
+  return (SL){.start = &a.start[start], .len = end - start};
 }
 
 #endif // SL_IMPLEMENTATION

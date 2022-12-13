@@ -10,7 +10,7 @@ tdf:
 	$(CC) -o tdf main.c $(CFLAGS)
 
 debug:
-	$(CC) -o tdf main.c $(CFLAGS) -g
+	$(CC) -o tdf main.c $(CFLAGS) -g -fsanitize=address,leak,undefined
 
 compiledb:
 	compiledb make -Bnwk all
