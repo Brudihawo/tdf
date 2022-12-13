@@ -6,22 +6,23 @@
  * @section License
  * Copyright 2022 Hawo Höfer
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this
- * software and associated documentation files (the "Software"), to deal in the Software
- * without restriction, including without limitation the rights to use, copy, modify,
- * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
- * permit persons to whom the Software is furnished to do so, subject to the following
- * conditions:
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all copies
- * or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
- * PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
- * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
- * CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE
- * OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #ifndef SL_H
@@ -48,12 +49,12 @@ typedef struct {
 #define SL_AT(sl, idx) sl.start[idx]
 
 /** New SL from content */
-#define SL_NEW(content)                                                    \
+#define SL_NEW(content)                                                        \
   (SL) { .start = content, .len = strlen(content) }
 
 /** New SL from Content and size for constant definition */
-#define SL_NWL(content)                                              \
-  { .start = content, .len = sizeof(content) - 1}
+#define SL_NWL(content)                                                        \
+  { .start = content, .len = sizeof(content) - 1 }
 
 /**
  * @brief Trim chars from an SL.
@@ -175,6 +176,16 @@ bool SL_ends_with(SL to_test, SL end);
  */
 bool SL_eq(SL a, SL b);
 
+/**
+ * Find char in SL
+ *
+ * @param a SL to search
+ * @param c char to find in sl
+ *
+ * @return int specifying location of c in a. Returns -1 if c is not present.
+ */
+int SL_find(SL a, char c);
+
 #ifdef SL_IMPLEMENTATION // INCLUDE IMPLEMENTATIONS
 #include "stdio.h"
 #include "stdlib.h"
@@ -192,7 +203,8 @@ SL SL_chop_delim(SL text, char delim) {
   while ((i < text.len) && (SL_AT(text, i) != delim)) {
     i++;
   }
-  if (i == text.len) i = -1;
+  if (i == text.len)
+    i = -1;
 
   return (SL){
       .start = &SL_AT(text, 0),
@@ -205,9 +217,10 @@ SL SL_chop_delim_right(SL text, char delim) {
   while ((i >= 0) && (SL_AT(text, i) != delim)) {
     i--;
   }
-  if (i == text.len) i = -1;
+  if (i == text.len)
+    i = -1;
 
-  return (SL) {
+  return (SL){
       .start = &SL_AT(text, i + 1),
       .len = i == -1 ? i : text.len - i - 1,
   };
@@ -222,14 +235,16 @@ SL SL_chop_slice(SL to_chop, SL delim) {
       j++;
       i++;
     } else {
-      if (j == 0) i++;
-      else j = 0;
+      if (j == 0)
+        i++;
+      else
+        j = 0;
     }
   }
 
-  return (SL) {
-    .start = &SL_AT(to_chop, 0),
-    .len = j == 0 ? -1 : i - delim.len,
+  return (SL){
+      .start = &SL_AT(to_chop, 0),
+      .len = j == 0 ? -1 : i - delim.len,
   };
 }
 
@@ -242,14 +257,16 @@ SL SL_chop_slice_right(SL to_chop, SL delim) {
       j--;
       i--;
     } else {
-      if (j == delim.len - 1) i--;
-      else j = delim.len - 1;
+      if (j == delim.len - 1)
+        i--;
+      else
+        j = delim.len - 1;
     }
   }
 
-  return (SL) {
-    .start = &SL_AT(to_chop, i + delim.len + 1),
-    .len = j == 0 ? -1 : to_chop.len - i - delim.len - 1,
+  return (SL){
+      .start = &SL_AT(to_chop, i + delim.len + 1),
+      .len = j == 0 ? -1 : to_chop.len - i - delim.len - 1,
   };
 }
 
@@ -280,7 +297,8 @@ SL SL_trim_whitespace_right(SL to_trim) {
 }
 
 bool SL_begins_with(SL slice, SL begin) {
-  if (slice.len < begin.len) return false;
+  if (slice.len < begin.len)
+    return false;
 
   for (int idx = 0; idx < begin.len; idx++) {
     if (SL_AT(slice, idx) != SL_AT(begin, idx)) {
@@ -291,7 +309,8 @@ bool SL_begins_with(SL slice, SL begin) {
 }
 
 bool SL_ends_with(SL slice, SL end) {
-  if (slice.len < end.len) return false;
+  if (slice.len < end.len)
+    return false;
 
   for (int idx = 0; idx < end.len; idx++) {
     if (SL_AT(slice, slice.len - end.len + idx) != SL_AT(end, idx)) {
@@ -302,13 +321,23 @@ bool SL_ends_with(SL slice, SL end) {
 }
 
 bool SL_eq(SL a, SL b) {
-  if (a.len != b.len) return false;
+  if (a.len != b.len)
+    return false;
 
   for (int i = 0; i < a.len; i++) {
     if (a.start[i] != b.start[i])
       return false;
   }
   return true;
+}
+
+int SL_find(SL a, char c) {
+  for (int i = 0; i < a.len; ++i) {
+    if (SL_at(a, i) == c) {
+      return i;
+    }
+  }
+  return -1;
 }
 
 #endif // SL_IMPLEMENTATION
