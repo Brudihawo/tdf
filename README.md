@@ -24,7 +24,8 @@ Finds todos recursively in a directory
 - Currently, only support for comments starting at the beginning of the line
 - Support for a bunch of file types (rust, c / cpp, tex, python, lua).
 
-| Format Option | Description                  |
-|---------------|------------------------------|
-| `--no-loc`    | Dont print file and location |
-| `--plain`     | No markdown list formatting  |
+| Format Option | Description                   |
+|---------------|-------------------------------|
+| `--no-loc`    | Dont print file and location  |
+| `--plain`     | No markdown list formatting   |
+| `--quickfix`  | vim/neovim quickfix list info | 
