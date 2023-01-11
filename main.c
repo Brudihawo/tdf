@@ -202,19 +202,21 @@ bool get_todo_com(SL trimmed, TodoCom *out) {
     // we try to parse an assignee
     out->has_assignee = true;
 
-    int pos = SL_find(rest, ')');
-    if (pos == -1) {
+    int assignee_rparen = SL_find(rest, ')');
+    if (assignee_rparen == -1) {
       return false;
     }
 
-    out->assignee = SL_slice_left_right(rest, 1, pos);
-    if (SL_AT(rest, pos + 1) != ':') {
+    out->assignee = SL_slice_left_right(rest, 1, assignee_rparen);
+    if (SL_AT(rest, assignee_rparen + 1) != ':') {
       // not a proper assignee string. has to be of format <comstr>(name):
       return false;
     }
 
-    assert(rest.len >= pos + 1 && "String too Short");
-    out->description = SL_trim_len(rest, pos + 3);
+    assert(rest.len >= assignee_rparen + 1 && "String too Short");
+    out->description = SL_trim_len(rest, assignee_rparen + 3);
+  } else if (SL_find(rest, ':') == -1) {
+    out->description = SL_trim_whitespace_right(SL_trim_whitespace(rest));
   }
   return true;
 }
